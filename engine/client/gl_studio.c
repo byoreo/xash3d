@@ -3686,21 +3686,25 @@ void R_DrawStudioModelInternal( cl_entity_t *e, qboolean follow_entity )
 
                 if ( cl_glow_player->value == 1)
                 {
-                if ( ent->player && ent->index != clgame.viewent.index )
-                {
-
-
-                ent->curstate.rendermode    = cl_glow_player_rendermode->value;
-                ent->curstate.renderamt     = cl_glow_player_renderamt->value;
-                ent->curstate.renderfx      = kRenderFxGlowShell;
-                ent->curstate.rendercolor.r = cl_glow_player_red->value;
-                ent->curstate.rendercolor.g = cl_glow_player_green->value;
-
-                ent->curstate.rendercolor.b = cl_glow_player_blue->value;
-                // pglDisable( GL_TEXTURE_2D);
-
-            }
-        }
+	                if ( ent->player && ent->index != clgame.viewent.index )
+	                {
+	
+	
+	                ent->curstate.rendermode    = cl_glow_player_rendermode->value;
+	                ent->curstate.renderamt     = cl_glow_player_renderamt->value;
+	                ent->curstate.renderfx      = kRenderFxGlowShell;
+	                ent->curstate.rendercolor.r = cl_glow_player_red->value;
+	                ent->curstate.rendercolor.g = cl_glow_player_green->value;
+	
+	                ent->curstate.rendercolor.b = cl_glow_player_blue->value;
+	                // pglDisable( GL_TEXTURE_2D);
+	
+	            }
+        	}
+		else
+		{
+		    ent->curstate.renderfx   = kRenderNormal;
+		}
     }
 }
 
@@ -3793,6 +3797,10 @@ void R_DrawViewModel( void )
 		RI.currententity->curstate.rendercolor.g = cl_glow_viewmodel_green->value;
 		RI.currententity->curstate.rendercolor.b = cl_glow_viewmodel_blue->value;
 
+	}
+	else
+	{
+		RI.currententity->curstate.renderfx = kRenderNormal;
 	}
 	
 	// restore depth range
