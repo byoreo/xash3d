@@ -28,7 +28,7 @@ GNU General Public License for more details.
 #include "library.h"
 
 #define MAX_TOTAL_CMDS		16
-#define MIN_CMD_RATE		0.1
+#define MIN_CMD_RATE		10.0
 #define MAX_CMD_BUFFER		4000
 #define CONNECTION_PROBLEM_TIME	3.0
 
