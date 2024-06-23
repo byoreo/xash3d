@@ -81,8 +81,14 @@ convar_t        *cl_glow_viewmodel_red;
 convar_t        *cl_glow_viewmodel_blue;
 convar_t        *cl_glow_viewmodel_green;
 convar_t        *cl_glow_viewmodel_renderamt;
-
-
+convar_t 	*cl_glow_worldmodel_blue;
+convar_t 	*cl_glow_worldmodel_red;
+convar_t 	*cl_glow_worldmodel_green;
+convar_t 	*cl_glow_worldmodel;
+convar_t 	*cl_glow_worldmodel_renderamt;
+convar_t 	*cl_glow_worldmodel;
+convar_t 	*cl_glow_worldmodel_height;
+convar_t 	*cl_glow_worldmodel_spin;
 convar_t	*hud_utf8;
 
 convar_t    *ui_renderworld;
@@ -2244,6 +2250,13 @@ void CL_InitLocal( void )
 	cl_glow_viewmodel_green = Cvar_Get( "cl_glow_viewmodel_green", "31", 0, "Viewmodel green Value" );
 	cl_glow_viewmodel_renderamt = Cvar_Get( "cl_glow_viewmodel_renderamt", "11", 0, "Viewmodel renderamt Value" );
 
+	cl_glow_worldmodel = Cvar_Get( "cl_glow_worldmodel", "0", 0, "beni bloklama alp lets go" );
+	cl_glow_worldmodel_red = Cvar_Get( "cl_glow_worldmodel_red", "51", 0, "bloklama amnakodum ya" );
+	cl_glow_worldmodel_green = Cvar_Get( "cl_glow_worldmodel_green", "131", 0, "soyledim bide ya evrimmis " );
+	cl_glow_worldmodel_blue  = Cvar_Get( "cl_glow_worldmodel_blue", "11", 0, "nasil evrimmis ya" );
+	cl_glow_worldmodel_renderamt = Cvar_Get( "cl_glow_worldmodel_renderamt", "51", 0, "AMMMMMMINAKE");
+	cl_glow_worldmodel_height       = Cvar_Get( "cl_glow_worldmodel_height", "30", 1, "OOOOOOF" );
+	cl_glow_worldmodel_spin = Cvar_Get("cl_glow_worldmodel_spin","45",1,"worldmodel spin");
 
 	// userinfo
 	Cvar_Get( "password", "", CVAR_USERINFO, "player password" );
