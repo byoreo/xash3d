@@ -297,6 +297,154 @@ void V_ProcessShowTexturesCmds( usercmd_t *cmd )
 	oldbuttons = cmd->buttons;
 }
 
+typedef struct
+{
+	qboolean valid;
+	vec3_t value;
+} lag_angles_t;
+
+#define STEP_MILLIS 10
+#define ANGLE_BACKUP_2 128
+
+#define TO_STEP( x ) ( (int)( (x)*STEP_MILLIS ) )
+#define FROM_STEP( x ) ( (float)( x ) * ( 1.0f / STEP_MILLIS ) )
+
+static lag_angles_t lag_angles[ANGLE_BACKUP_2];
+static int last_step;
+
+static float Map( float value, float low1, float high1, float low2, float high2 )
+{
+	return low2 + ( value - low1 ) * ( high2 - low2 ) / ( high1 - low1 );
+}
+
+void AngleLerp( const vec3_t a, const vec3_t b, float t, vec3_t dst )
+{
+	/* crappy but it's fast */
+	int i;
+	float dt;
+
+	for ( i = 0; i < 3; i++ )
+	{
+		dt = b[i] - a[i];
+
+		if ( dt < -180 )
+			dt += 360;
+		else if ( dt > 180 )
+			dt -= 360;
+
+		dst[i] = a[i] + t * dt;
+	}
+}
+
+static void AddLagAngles( float time, vec3_t angles )
+{
+	int step = TO_STEP( time );
+
+	if ( step < last_step )
+	{
+		// client restart
+		memset( lag_angles, 0, sizeof( lag_angles ) );
+	}
+	else if ( step == last_step )
+	{
+		// too soon
+		return;
+	}
+
+	last_step = step;
+
+	VectorCopy( angles, lag_angles[step % ANGLE_BACKUP].value );
+	lag_angles[step % ANGLE_BACKUP].valid = true;
+}
+
+static qboolean GetLagAngles( float time, vec3_t dest )
+{
+	int step = TO_STEP( time );
+
+	lag_angles_t *angles = &lag_angles[step % ANGLE_BACKUP];
+	if ( !angles->valid )
+		return false;
+
+	float step_time = FROM_STEP( TO_STEP( time ) );
+	if ( step_time < time )
+	{
+		lag_angles_t *next_angles = &lag_angles[( step + 1 ) % ANGLE_BACKUP];
+		if ( !next_angles->valid )
+		{
+			// can't lerp to these
+			VectorCopy( angles->value, dest );
+		}
+		else
+		{
+			float next_time = FROM_STEP( step + 1 );
+			float frac      = Map( time, step_time, next_time, 0, 1 );
+			AngleLerp( angles->value, next_angles->value, frac, dest );
+		}
+	}
+	else
+	{
+		// if round_time > time, the difference is
+		// probably so small that it can't be noticed
+		VectorCopy( angles->value, dest );
+	}
+
+	return true;
+}
+
+inline static void VectorMA_KopaFish( const vec3_t v, float s, vec3_t dst )
+{
+	dst[0] += v[0] * s;
+	dst[1] += v[1] * s;
+	dst[2] += v[2] * s;
+}
+
+inline static void VectorMA_2( const vec3_t v, float s, vec3_t dst )
+{
+	dst[0] += v[0] * s;
+	dst[1] += v[1] * s;
+	dst[2] -= v[2] * s;
+}
+
+inline static void VectorNegatee( vec3_t v )
+{
+	v[0] = -v[0];
+	v[1] = -v[1];
+	v[2] = -v[2];
+}
+static void V_AddLag_CSS( vec3_t origin, vec3_t angles, vec3_t front, vec3_t side, vec3_t up )
+{
+	AddLagAngles( cl.refdef.time, angles );
+
+	vec3_t prev_angles;
+	if ( !GetLagAngles( cl.refdef.time - 0.1f, prev_angles ) )
+		return;
+
+	vec3_t delta_angles;
+	VectorSubtract( prev_angles, angles, delta_angles );
+	VectorNegatee( delta_angles );
+
+	vec3_t delta_front;
+	AngleVectors( delta_angles, delta_front, NULL, NULL );
+
+	VectorMA_2( front, ( 1 - delta_front[0] ) * viewmodel_lag_scale->value, origin );
+	VectorMA_2( side, ( delta_front[1] ) * viewmodel_lag_scale->value, origin );
+	VectorMA_2( up, ( -delta_front[2] ) * viewmodel_lag_scale->value, origin );
+
+
+}
+static void V_AddLag_HL2( vec3_t origin, vec3_t front )
+{
+	vec3_t delta_front;
+	static vec3_t last_front;
+
+	delta_front[0] = front[0] - last_front[0];
+	delta_front[1] = front[1] - last_front[1];
+	delta_front[2] = front[2] - last_front[2];
+
+	VectorMA_KopaFish( delta_front, viewmodel_lag_speed->value * cl.refdef.frametime, last_front );// Xashdaki VectorMA Hata veriyor Sadece Aldýgým yerdeki VectorMA'yý kullanýyorum
+	VectorMA_2( delta_front, -1 * viewmodel_lag_scale->value, origin );
+}
+
 /*
 ===============
 V_CalcRefDef
@@ -312,6 +460,30 @@ void V_CalcRefDef( void )
 	do
 	{
 		clgame.dllFuncs.pfnCalcRefdef( &cl.refdef );
+		if ( viewmodel_lag_style->value != 0 )
+		{
+			cl_entity_t *vm;
+			vec3_t front, side, up;
+
+			vm = &clgame.viewent;
+			AngleVectors( vm->angles, front, side, up );
+
+			/* fix the slight difference between view and vm origin */
+			vm->origin[0] += 1.0f / 32;
+			vm->origin[1] += 1.0f / 32;
+			vm->origin[2] += 1.0f / 32;
+
+			switch ( (int)viewmodel_lag_style->value )
+			{
+			case 1:
+				V_AddLag_HL2( vm->origin, front );
+				break;
+
+			case 2:
+				V_AddLag_CSS( vm->origin, vm->angles, front, side, up );
+				break;
+			}
+		}
 		V_MergeOverviewRefdef( &cl.refdef );
 		R_RenderFrame( &cl.refdef, true );
 		cl.refdef.onlyClientDraw = false;

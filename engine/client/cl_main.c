@@ -89,8 +89,10 @@ convar_t 	*cl_glow_worldmodel_renderamt;
 convar_t 	*cl_glow_worldmodel;
 convar_t 	*cl_glow_worldmodel_height;
 convar_t 	*cl_glow_worldmodel_spin;
+convar_t	*viewmodel_lag_style;
+convar_t	*viewmodel_lag_scale;
+convar_t	*viewmodel_lag_speed;
 convar_t	*hud_utf8;
-
 convar_t    *ui_renderworld;
 //
 // userinfo
@@ -2237,12 +2239,12 @@ void CL_InitLocal( void )
 	cl_trace_messages = Cvar_Get( "cl_trace_messages", "0", CVAR_ARCHIVE|CVAR_CHEAT, "enable message names tracing (good for developers)");
 	cl_trace_stufftext = Cvar_Get( "cl_trace_stufftext", "0", CVAR_ARCHIVE|CVAR_CHEAT, "enable stufftext commands tracing (good for developers)" );
 	
-        cl_glow_player           = Cvar_Get( "cl_glow_player", "0", CVAR_ARCHIVE, "Enable Glow Players" );
-        cl_glow_player_red       = Cvar_Get( "cl_glow_player_red", "200", CVAR_ARCHIVE, "Player Glowcolor Red" );
-        cl_glow_player_blue      = Cvar_Get( "cl_glow_player_blue", "100", CVAR_ARCHIVE, "Player Glowcolor Blue" );
-        cl_glow_player_green     = Cvar_Get( "cl_glow_player_green", "50", CVAR_ARCHIVE, "Player Glowcolor Green" );
-        cl_glow_player_rendermode = Cvar_Get( "cl_glow_player_rendermode", "1", CVAR_ARCHIVE, "Glow Player Rendermode" );
-        cl_glow_player_renderamt  = Cvar_Get( "cl_glow_player_renderamt", "255", CVAR_ARCHIVE, "Glow Player Renderamt" );
+    cl_glow_player           = Cvar_Get( "cl_glow_player", "0", CVAR_ARCHIVE, "Enable Glow Players" );
+    cl_glow_player_red       = Cvar_Get( "cl_glow_player_red", "200", CVAR_ARCHIVE, "Player Glowcolor Red" );
+    cl_glow_player_blue      = Cvar_Get( "cl_glow_player_blue", "100", CVAR_ARCHIVE, "Player Glowcolor Blue" );
+    cl_glow_player_green     = Cvar_Get( "cl_glow_player_green", "50", CVAR_ARCHIVE, "Player Glowcolor Green" );
+    cl_glow_player_rendermode = Cvar_Get( "cl_glow_player_rendermode", "1", CVAR_ARCHIVE, "Glow Player Rendermode" );
+    cl_glow_player_renderamt  = Cvar_Get( "cl_glow_player_renderamt", "255", CVAR_ARCHIVE, "Glow Player Renderamt" );
 
 	cl_glow_viewmodel = Cvar_Get( "cl_glow_viewmodel", "0", 0, "Enable viewmodel glow" );
 	cl_glow_viewmodel_red = Cvar_Get( "cl_glow_viewmodel_red", "31", 0, "Viewmodel Red Value" );
@@ -2257,6 +2259,10 @@ void CL_InitLocal( void )
 	cl_glow_worldmodel_renderamt = Cvar_Get( "cl_glow_worldmodel_renderamt", "51", 0, "AMMMMMMINAKE");
 	cl_glow_worldmodel_height       = Cvar_Get( "cl_glow_worldmodel_height", "30", 1, "OOOOOOF" );
 	cl_glow_worldmodel_spin = Cvar_Get("cl_glow_worldmodel_spin","45",1,"worldmodel spin abi test123");
+
+	viewmodel_lag_style = Cvar_Get( "viewmodel_lag_style", "1", 1, "idk" );
+	viewmodel_lag_scale = Cvar_Get( "viewmodel_lag_scale", "1", 1, "idk" );
+	viewmodel_lag_speed = Cvar_Get( "viewmodel_lag_speed", "2", 1, "idk" );
 
 	// userinfo
 	Cvar_Get( "password", "", CVAR_USERINFO, "player password" );

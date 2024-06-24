@@ -534,11 +534,131 @@ typedef struct
 	qboolean internetservers_pending;	// internetservers is waiting for dns request
 } client_static_t;
 
+typedef struct CBasePlayerWeapon_s
+{
+	qboolean m_bDelayFire;
+	unsigned int random_seed;
+	int m_iWeaponState;
+	int m_iFlags;
+	int m_iClip;
+	int m_iWeaponID;
+	int m_iInReload;
+	int iPenetration;
+	int iBulletType;
+	int iDamage1;
+	int iDamage2;
+	int m_iShotsFired;
+	int iuser3;
+	float prevtime;
+	float curtime;
+	float m_flDecreaseShotsFired;
+	float m_flAccuracy;
+	float m_flSpread;
+	float m_flNextPrimaryAttack;
+	float m_flNextSecondaryAttack;
+	float m_flNextAttack;
+	float flPenetrationDistance;
+	float flWallPierce1;
+	float flWallPierce2;
 
+} CBasePlayerWeapon_t;
+
+typedef struct local_s
+{
+	int iTeam;
+	int iIndex;
+	int iFOV;
+	int iClip;
+	float flZspeed;
+	float flXYspeed;
+	float flFallSpeed;
+	float fsin_yaw;
+	int iHealth;
+	int fiHealth;
+	int xgHealth;
+	qboolean ZPHudFix;
+	float flVelocity;
+	float fFrametime;
+	float fminus_cos_yaw;
+	float flHeightGround;
+	int iMaxHitboxes;
+	float FreeLookOffset[3];
+	float FreeLookAngles[3];
+	float Height;
+	float flHeight;
+	float flFrametime;
+	int iMoveType;
+	int iWeaponID;
+	int iInReload;
+	int iFlags;
+	int iWaterLevel;
+	CBasePlayerWeapon_t weapon;
+	float flGroundAngle;
+	vec3_t vViewAngles;
+	vec3_t vOrigin;
+	vec3_t vEye;
+	vec3_t vForward;
+	vec3_t vRight;
+	vec3_t vUp;
+	vec3_t vPunchangle;
+	vec3_t vNoSpreadAngle;
+	vec3_t vNoRecoilAngle;
+	qboolean bAlive;
+	float flGroundangle;
+	float flHeightorigin;
+	float m_flFrameTime;
+	short sLerpMSec;
+	vec3_t vVelocity;
+	float flFallVelocity;
+	float flVelocityspeed;
+	int iUsehull;
+	vec3_t vView_ofs;
+	float flWaterlevel;
+	float flGravity;
+	int iMovetype;
+
+	float flFPS;
+	cl_entity_t *Entity;
+} local_t;
 	// download info
 extern int		downloadcount;
 extern int		downloadfileid;
 
+enum WeaponIDs
+{
+	WEAPON_NONE,
+	WEAPON_P228,
+	WEAPON_GLOCK,
+	WEAPON_SCOUT,
+	WEAPON_HEGRENADE,
+	WEAPON_XM1014,
+	WEAPON_C4,
+	WEAPON_MAC10,
+	WEAPON_AUG,
+	WEAPON_SMOKEGRENADE,
+	WEAPON_ELITE,
+	WEAPON_FIVESEVEN,
+	WEAPON_UMP45,
+	WEAPON_SG550,
+	WEAPON_GALIL,
+	WEAPON_FAMAS,
+	WEAPON_USP,
+	WEAPON_GLOCK18,
+	WEAPON_AWP,
+	WEAPON_MP5N,
+	WEAPON_M249,
+	WEAPON_M3,
+	WEAPON_M4A1,
+	WEAPON_TMP,
+	WEAPON_G3SG1,
+	WEAPON_FLASHBANG,
+	WEAPON_DEAGLE,
+	WEAPON_SG552,
+	WEAPON_AK47,
+	WEAPON_KNIFE,
+	WEAPON_P90,
+	WEAPON_SHIELDGUN = 99
+};
 
 #ifdef __cplusplus
 extern "C" {
@@ -548,7 +668,7 @@ extern client_t		cl;
 extern client_static_t	cls;
 extern clgame_static_t	clgame;
 extern menu_static_t	menu;
-
+extern local_t g_Local;
 #ifdef __cplusplus
 }
 #endif
@@ -609,8 +729,9 @@ extern convar_t *cl_glow_viewmodel_red;
 extern convar_t *cl_glow_viewmodel_blue;
 extern convar_t *cl_glow_viewmodel_green;
 extern convar_t *cl_glow_viewmodel_renderamt;
-
-
+extern convar_t *viewmodel_lag_style;
+extern convar_t *viewmodel_lag_scale;
+extern convar_t *viewmodel_lag_speed;
 
 //=============================================================================
 

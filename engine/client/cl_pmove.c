@@ -24,6 +24,9 @@ GNU General Public License for more details.
 #include "studio.h"
 #include "library.h" // Loader_GetDllHandle( )
 
+
+local_t g_Local;
+
 void CL_ClearPhysEnts( void )
 {
 	clgame.pmove->numtouch = 0;
@@ -238,6 +241,26 @@ qboolean CL_CopyEntityToPhysEnt( physent_t *pe, cl_entity_t *ent )
 
 	return true;
 }
+
+
+
+void ItemPreFrame( local_state_t *from, local_state_t *to, usercmd_t *cmd, int runfuncs, double time, unsigned int random_seed )
+{
+
+	g_Local.weapon.random_seed             = random_seed;
+	g_Local.weapon.curtime                 = time;
+	g_Local.weapon.m_iFlags                = to->client.flags;
+	g_Local.weapon.m_iWeaponID             = to->client.m_iId;
+	g_Local.weapon.m_iClip                 = to->weapondata[to->client.m_iId].m_iClip;
+	g_Local.weapon.m_flNextPrimaryAttack   = to->weapondata[to->client.m_iId].m_flNextPrimaryAttack;
+	g_Local.weapon.m_flNextSecondaryAttack = to->weapondata[to->client.m_iId].m_flNextSecondaryAttack;
+	g_Local.weapon.m_iInReload             = ( to->weapondata[to->client.m_iId].m_fInReload || !to->weapondata[to->client.m_iId].m_iClip );
+	g_Local.weapon.m_iWeaponState          = to->weapondata[to->client.m_iId].m_iWeaponState;
+	g_Local.weapon.m_flNextAttack          = to->client.m_flNextAttack;
+	g_Local.weapon.iuser3                  = to->client.iuser3;
+	g_Local.iHealth                        = to->client.health; // ZP4.3fix5a kullanan sunucularda health infoyu bir þekilde alamýyorum 511 den fazla yukarý çýkmýyor bu durum nextclientde de ayný bunun bi çözümü yok sanýrým.
+}
+
 
 /*
 ====================
@@ -1020,6 +1043,7 @@ void CL_RunUsercmd( local_state_t *from, local_state_t *to, usercmd_t *u, qboole
 	if( cl.predicted.lastground > 0 && cl.predicted.lastground < clgame.pmove->numphysent )
 		cl.predicted.lastground = clgame.pmove->physents[cl.predicted.lastground].info;
 
+	ItemPreFrame( from, to, &cmd, runfuncs, *time, random_seed );
 	clgame.dllFuncs.pfnPostRunCmd( from, to, &cmd, runfuncs, *time, random_seed );
 	*time += (double)cmd.msec / 1000.0;
 }
