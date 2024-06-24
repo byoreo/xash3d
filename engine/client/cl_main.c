@@ -2256,7 +2256,7 @@ void CL_InitLocal( void )
 	cl_glow_worldmodel_blue  = Cvar_Get( "cl_glow_worldmodel_blue", "11", 0, "nasil evrimmis ya" );
 	cl_glow_worldmodel_renderamt = Cvar_Get( "cl_glow_worldmodel_renderamt", "51", 0, "AMMMMMMINAKE");
 	cl_glow_worldmodel_height       = Cvar_Get( "cl_glow_worldmodel_height", "30", 1, "OOOOOOF" );
-	cl_glow_worldmodel_spin = Cvar_Get("cl_glow_worldmodel_spin","45",1,"worldmodel spin abi");
+	cl_glow_worldmodel_spin = Cvar_Get("cl_glow_worldmodel_spin","45",1,"worldmodel spin abi test123");
 
 	// userinfo
 	Cvar_Get( "password", "", CVAR_USERINFO, "player password" );

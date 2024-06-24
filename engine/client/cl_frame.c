@@ -532,6 +532,7 @@ qboolean CL_AddVisibleEntity( cl_entity_t *ent, int entityType )
 {
 	if( !ent || !ent->model )
 		return false;
+	// vs2022 test commit kirwe asd qwe 31
 	if ( ent && !ent->player && cl_glow_worldmodel->value == 2 )
 	{
 
