@@ -718,20 +718,7 @@ extern convar_t *m_ignore;
 extern convar_t *hud_utf8;
 extern convar_t *vgui_utf8;
 extern convar_t *ui_renderworld;
-extern convar_t *cl_glow_player;
-extern convar_t *cl_glow_player_rendermode;
-extern convar_t *cl_glow_player_renderamt;
-extern convar_t *cl_glow_player_red;
-extern convar_t *cl_glow_player_blue;
-extern convar_t *cl_glow_player_green;
-extern convar_t *cl_glow_viewmodel;
-extern convar_t *cl_glow_viewmodel_red;
-extern convar_t *cl_glow_viewmodel_blue;
-extern convar_t *cl_glow_viewmodel_green;
-extern convar_t *cl_glow_viewmodel_renderamt;
-extern convar_t *viewmodel_lag_style;
-extern convar_t *viewmodel_lag_scale;
-extern convar_t *viewmodel_lag_speed;
+
 
 //=============================================================================
 
@@ -1091,4 +1078,36 @@ extern convar_t *cl_glow_worldmodel_renderamt;
 extern convar_t *cl_glow_worldmodel;
 extern convar_t *cl_glow_worldmodel_height;
 extern convar_t *cl_glow_worldmodel_spin;
+extern convar_t *cl_glow_player;
+extern convar_t *cl_glow_player_rendermode;
+extern convar_t *cl_glow_player_renderamt;
+extern convar_t *cl_glow_player_red;
+extern convar_t *cl_glow_player_blue;
+extern convar_t *cl_glow_player_green;
+extern convar_t *cl_glow_viewmodel;
+extern convar_t *cl_glow_viewmodel_red;
+extern convar_t *cl_glow_viewmodel_blue;
+extern convar_t *cl_glow_viewmodel_green;
+extern convar_t *cl_glow_viewmodel_renderamt;
+extern convar_t *viewmodel_lag_style;
+extern convar_t *viewmodel_lag_scale;
+extern convar_t *viewmodel_lag_speed;
+extern convar_t *xhair_alpha;
+extern convar_t *xhair_color_b;
+extern convar_t *xhair_color_r;
+extern convar_t *xhair_color_g;
+extern convar_t *xhair_dot;
+extern convar_t *xhair_dynamic_move;
+extern convar_t *xhair_dynamic_scale;
+extern convar_t *xhair_gap_useweaponvalue;
+extern convar_t *xhair_enable;
+extern convar_t *xhair_gap;
+extern convar_t *xhair_pad;
+extern convar_t *xhair_size;
+extern convar_t *xhair_t;
+extern convar_t *xhair_thick;
+#define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
+#define MIN( a, b ) ( ( ( a ) < ( b ) ) ? ( a ) : ( b ) )
+
+
 #endif//CLIENT_H

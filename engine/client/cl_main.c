@@ -92,6 +92,20 @@ convar_t 	*cl_glow_worldmodel_spin;
 convar_t	*viewmodel_lag_style;
 convar_t	*viewmodel_lag_scale;
 convar_t	*viewmodel_lag_speed;
+convar_t *xhair_alpha;
+convar_t *xhair_color_b;
+convar_t *xhair_color_r;
+convar_t *xhair_color_g;
+convar_t *xhair_dot;
+convar_t *xhair_dynamic_move;
+convar_t *xhair_dynamic_scale;
+convar_t *xhair_gap_useweaponvalue;
+convar_t *xhair_enable;
+convar_t *xhair_gap;
+convar_t *xhair_pad;
+convar_t *xhair_size;
+convar_t *xhair_t;
+convar_t *xhair_thick;
 convar_t	*hud_utf8;
 convar_t    *ui_renderworld;
 //
@@ -2263,6 +2277,21 @@ void CL_InitLocal( void )
 	viewmodel_lag_style = Cvar_Get( "viewmodel_lag_style", "1", 1, "idk" );
 	viewmodel_lag_scale = Cvar_Get( "viewmodel_lag_scale", "1", 1, "idk" );
 	viewmodel_lag_speed = Cvar_Get( "viewmodel_lag_speed", "2", 1, "idk" );
+
+	xhair_alpha              = Cvar_Get( "xhair_alpha", "1", 1, "xhair" );
+	xhair_color_b            = Cvar_Get( "xhair_color_b", "31", 1, "xhair" );
+	xhair_color_r            = Cvar_Get( "xhair_color_r", "31", 1, "xhair" );
+	xhair_color_g            = Cvar_Get( "xhair_color_g", "31", 1, "xhair" );
+	xhair_dot                = Cvar_Get( "xhair_dot", "0", 1, "xhair" );
+	xhair_dynamic_move       = Cvar_Get( "xhair_dynamic_move", "1", 1, "xhair" );
+	xhair_dynamic_scale      = Cvar_Get( "xhair_dynamic_scale", "2", 1, "xhair" );
+	xhair_gap_useweaponvalue = Cvar_Get( "xhair_gap_useweaponvalue", "0", 1, "xhair" );
+	xhair_enable             = Cvar_Get( "xhair_enable", "0", 1, "xhair" );
+	xhair_gap                = Cvar_Get( "xhair_gap", "1", 1, "xhair" );
+	xhair_pad                = Cvar_Get( "xhair_pad", "1", 1, "xhair" );
+	xhair_size               = Cvar_Get( "xhair_size", "1", 1, "xhair" );
+	xhair_t                  = Cvar_Get( "xhair_t", "0", 1, "xhair" );
+	xhair_thick              = Cvar_Get( "xhair_thick", "1", 1, "xhair" );
 
 	// userinfo
 	Cvar_Get( "password", "", CVAR_USERINFO, "player password" );

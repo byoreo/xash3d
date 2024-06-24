@@ -1018,6 +1018,385 @@ static void CL_DrawPause( void )
 	R_DrawStretchPic( x, y, width, height, 0, 0, 1, 1, cls.pauseIcon );
 }
 
+
+
+static void Vertex2fv( float *v )
+{
+	pglVertex2f( v[0], v[1] );
+}
+
+static void DrawCrosshairSection( int _x0, int _y0, int _x1, int _y1 )
+{
+	float x0 = (float)_x0;
+	float y0 = (float)_y0;
+	float x1 = (float)_x1;
+	float y1 = (float)_y1;
+
+	float top_left[2]     = { x0, y0 };
+	float top_right[2]    = { x1, y0 };
+	float bottom_right[2] = { x1, y1 };
+	float bottom_left[2]  = { x0, y1 };
+
+	pglColor4f( xhair_color_r->value,
+	            xhair_color_g->value,
+	            xhair_color_b->value,
+	            xhair_alpha->value );
+
+	pglBegin( GL_TRIANGLE_STRIP );
+	Vertex2fv( top_left );
+	Vertex2fv( bottom_left );
+	Vertex2fv( top_right );
+	Vertex2fv( bottom_right );
+	pglEnd( );
+}
+inline static int Rint( float x )
+{
+	return (int)( ( x < 0 ) ? ( x - 0.5f ) : ( x + 0.5f ) );
+}
+
+static int ScaleForRes( float value, int height )
+{
+	/* "default" resolution is 640x480 */
+	return Rint( value * ( (float)height / 480.0f ) );
+}
+
+int xhairWeaponFlags;
+int xhairShotsFired;
+static void DrawCrosshairPadding( int _pad, int _x0, int _y0, int _x1, int _y1 )
+{
+	float pad = (float)_pad;
+	float x0  = (float)_x0;
+	float y0  = (float)_y0;
+	float x1  = (float)_x1;
+	float y1  = (float)_y1;
+
+	float out_top_left[2]     = { x0 - pad, y0 - pad };
+	float out_top_right[2]    = { x1 + pad, y0 - pad };
+	float out_bottom_right[2] = { x1 + pad, y1 + pad };
+	float out_bottom_left[2]  = { x0 - pad, y1 + pad };
+	float in_top_left[2]      = { x0, y0 };
+	float in_top_right[2]     = { x1, y0 };
+	float in_bottom_right[2]  = { x1, y1 };
+	float in_bottom_left[2]   = { x0, y1 };
+
+	pglColor4f( 0, 0, 0, xhair_alpha->value );
+
+	pglBegin( GL_TRIANGLE_STRIP );
+	Vertex2fv( in_bottom_left );
+	Vertex2fv( out_bottom_right );
+	Vertex2fv( in_bottom_right );
+	Vertex2fv( out_top_right );
+	Vertex2fv( in_top_right );
+	Vertex2fv( out_top_left );
+	Vertex2fv( in_top_left );
+	Vertex2fv( out_bottom_left );
+	Vertex2fv( in_bottom_left );
+	Vertex2fv( out_bottom_right );
+	pglEnd( );
+}
+enum
+{
+	ACCURACY_NONE            = 0,
+	ACCURACY_JUMP            = ( 1 << 0 ),
+	ACCURACY_RUN             = ( 1 << 1 ),
+	ACCURACY_DUCK            = ( 1 << 2 ),
+	ACCURACY_INACCURATE      = ( 1 << 3 ),
+	ACCURACY_VERY_INACCURATE = ( 1 << 4 )
+};
+
+static int GetWeaponAccuracyFlags( int iWeaponID )
+{
+	switch ( iWeaponID )
+	{
+	case WEAPON_P228:
+	case WEAPON_FIVESEVEN:
+	case WEAPON_DEAGLE:
+		return ( ACCURACY_DUCK | ACCURACY_RUN | ACCURACY_JUMP );
+
+	case WEAPON_MAC10:
+	case WEAPON_UMP45:
+	case WEAPON_MP5N:
+	case WEAPON_TMP:
+		return ACCURACY_JUMP;
+
+	case WEAPON_AUG:
+	case WEAPON_GALIL:
+	case WEAPON_M249:
+	case WEAPON_SG552:
+	case WEAPON_AK47:
+	case WEAPON_P90:
+		return ( ACCURACY_RUN | ACCURACY_JUMP );
+
+	case WEAPON_FAMAS:
+		return ( xhairWeaponFlags & 16 ) ? ( ACCURACY_VERY_INACCURATE | ACCURACY_RUN | ACCURACY_JUMP ) : ( ACCURACY_RUN | ACCURACY_JUMP );
+
+	case WEAPON_USP:
+		return ( xhairWeaponFlags & 1 ) ? ( ACCURACY_INACCURATE | ACCURACY_DUCK | ACCURACY_RUN | ACCURACY_JUMP ) : ( ACCURACY_DUCK | ACCURACY_RUN | ACCURACY_JUMP );
+
+	case WEAPON_GLOCK18:
+		return ( xhairWeaponFlags & 2 ) ? ( ACCURACY_VERY_INACCURATE | ACCURACY_DUCK | ACCURACY_RUN | ACCURACY_JUMP ) : ( ACCURACY_DUCK | ACCURACY_RUN | ACCURACY_JUMP );
+
+	case WEAPON_M4A1:
+		return ( xhairWeaponFlags & 4 ) ? ( ACCURACY_INACCURATE | ACCURACY_RUN | ACCURACY_JUMP ) : ( ACCURACY_RUN | ACCURACY_JUMP );
+	}
+
+	return ACCURACY_NONE;
+}
+
+#define MAX_XHAIR_GAP 15
+
+float GetCrosshairGap( void )
+{
+	static float xhairGap;
+	static int lastShotsFired;
+	static float xhairPrevTime;
+	float minGap, deltaGap;
+
+	switch ( g_Local.weapon.m_iWeaponID )
+	{
+	case WEAPON_P228:
+	case WEAPON_HEGRENADE:
+	case WEAPON_SMOKEGRENADE:
+	case WEAPON_FIVESEVEN:
+	case WEAPON_USP:
+	case WEAPON_GLOCK18:
+	case WEAPON_AWP:
+	case WEAPON_FLASHBANG:
+	case WEAPON_DEAGLE:
+		minGap   = 8;
+		deltaGap = 3;
+		break;
+
+	case WEAPON_SCOUT:
+	case WEAPON_SG550:
+	case WEAPON_SG552:
+		minGap   = 5;
+		deltaGap = 3;
+		break;
+
+	case WEAPON_XM1014:
+		minGap   = 9;
+		deltaGap = 4;
+		break;
+
+	case WEAPON_C4:
+	case WEAPON_UMP45:
+	case WEAPON_M249:
+		minGap   = 6;
+		deltaGap = 3;
+		break;
+
+	case WEAPON_MAC10:
+		minGap   = 9;
+		deltaGap = 3;
+		break;
+
+	case WEAPON_AUG:
+		minGap   = 3;
+		deltaGap = 3;
+		break;
+
+	case WEAPON_MP5N:
+		minGap   = 6;
+		deltaGap = 2;
+		break;
+
+	case WEAPON_M3:
+		minGap   = 8;
+		deltaGap = 6;
+		break;
+
+	case WEAPON_TMP:
+	case WEAPON_KNIFE:
+	case WEAPON_P90:
+		minGap   = 7;
+		deltaGap = 3;
+		break;
+
+	case WEAPON_G3SG1:
+		minGap   = 6;
+		deltaGap = 4;
+		break;
+
+	case WEAPON_AK47:
+		minGap   = 4;
+		deltaGap = 4;
+		break;
+
+	default:
+		minGap   = 4;
+		deltaGap = 3;
+		break;
+	}
+
+	if ( !xhair_gap_useweaponvalue->value )
+		minGap = 4;
+
+	float baseMinGap = minGap;
+	float absMinGap  = baseMinGap * 0.5f;
+
+	int flags = GetWeaponAccuracyFlags( g_Local.weapon.m_iWeaponID );
+	if ( xhair_dynamic_move->value && flags )
+	{
+		if ( !( clgame.pmove->flags & FL_ONGROUND ) && ( flags & ACCURACY_JUMP ) )
+		{
+			minGap *= 2.0f;
+		}
+		else if ( ( clgame.pmove->flags & FL_DUCKING ) && ( flags & ACCURACY_DUCK ) )
+		{
+			minGap *= 0.5f;
+		}
+		else
+		{
+			float runLimit;
+
+			switch ( g_Local.weapon.m_iWeaponID )
+			{
+			case WEAPON_AUG:
+			case WEAPON_GALIL:
+			case WEAPON_FAMAS:
+			case WEAPON_M249:
+			case WEAPON_M4A1:
+			case WEAPON_SG552:
+			case WEAPON_AK47:
+				runLimit = 140;
+				break;
+
+			case WEAPON_P90:
+				runLimit = 170;
+				break;
+
+			default:
+				runLimit = 0;
+				break;
+			}
+
+			float xhairPlayerSpeed = VectorLength( cl.frame.client.velocity );
+			if ( xhairPlayerSpeed > runLimit && ( flags & ACCURACY_RUN ) )
+				minGap *= 1.5f;
+		}
+
+		if ( flags & ACCURACY_INACCURATE )
+			minGap *= 1.4f;
+
+		if ( flags & ACCURACY_VERY_INACCURATE )
+			minGap *= 1.4f;
+
+		minGap = baseMinGap + ( minGap - baseMinGap ) * xhair_dynamic_scale->value;
+		minGap = MAX( minGap, absMinGap );
+	}
+
+	if ( xhairPrevTime > cl.time )
+	{
+		// client restart
+		xhairPrevTime = cl.time;
+	}
+
+	float deltaTime = cl.time - xhairPrevTime;
+	xhairPrevTime   = cl.time;
+
+	if ( xhairShotsFired <= lastShotsFired )
+	{
+		// decay the crosshair as if we were always running at 100 fps
+		xhairGap -= ( 100 * deltaTime ) * ( 0.013f * xhairGap + 0.1f );
+	}
+	else
+	{
+		xhairGap += deltaGap * xhair_dynamic_scale->value;
+		xhairGap = MIN( xhairGap, MAX_XHAIR_GAP );
+	}
+
+	if ( xhairShotsFired > 600 )
+		xhairShotsFired = 1;
+
+	lastShotsFired = xhairShotsFired;
+
+	xhairGap = MAX( xhairGap, minGap );
+
+	return xhairGap + xhair_gap->value;
+}
+
+
+
+static void DrawCrosshair31( void )
+{
+	int center_x, center_y;
+	int gap, length, thickness;
+	int y0, y1, x0, x1;
+	wrect_t inner;
+	wrect_t outer;
+
+	/* dumb */
+	if ( !g_Local.weapon.m_iWeaponID || ( g_Local.weapon.m_iWeaponID == WEAPON_SCOUT ) ||
+	     ( g_Local.weapon.m_iWeaponID == WEAPON_AWP ) ||
+	     ( g_Local.weapon.m_iWeaponID == WEAPON_G3SG1 ) ||
+	     ( g_Local.weapon.m_iWeaponID == WEAPON_SG550 ) )
+		return;
+
+	/* calculate coordinates */
+	center_x = clgame.scrInfo.iWidth / 2;
+	center_y = clgame.scrInfo.iHeight / 2;
+
+	int screenHeight = clgame.scrInfo.iHeight;
+	int screenWidth  = clgame.scrInfo.iWidth;
+
+	gap       = ScaleForRes( GetCrosshairGap( ), screenHeight );
+	length    = ScaleForRes( xhair_size->value, screenHeight );
+	thickness = ScaleForRes( xhair_thick->value, screenHeight );
+	thickness = MAX( 1, thickness );
+
+	inner.left   = ( center_x - gap - thickness / 2 );
+	inner.right  = ( inner.left + 2 * gap + thickness );
+	inner.top    = ( center_y - gap - thickness / 2 );
+	inner.bottom = ( inner.top + 2 * gap + thickness );
+
+	outer.left   = ( inner.left - length );
+	outer.right  = ( inner.right + length );
+	outer.top    = ( inner.top - length );
+	outer.bottom = ( inner.bottom + length );
+
+	y0 = ( center_y - thickness / 2 );
+	x0 = ( center_x - thickness / 2 );
+	y1 = ( y0 + thickness );
+	x1 = ( x0 + thickness );
+
+	pglDisable( GL_TEXTURE_2D );
+	pglEnable( GL_BLEND );
+	pglBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+	if ( xhair_dot->value )
+		DrawCrosshairSection( x0, y0, x1, y1 );
+
+	if ( !xhair_t->value )
+		DrawCrosshairSection( x0, outer.top, x1, inner.top );
+
+	DrawCrosshairSection( x0, inner.bottom, x1, outer.bottom );
+	DrawCrosshairSection( outer.left, y0, inner.left, y1 );
+	DrawCrosshairSection( inner.right, y0, outer.right, y1 );
+
+	/* draw padding if wanted */
+	if ( xhair_pad->value )
+	{
+		/* don't scale this */
+		int pad = (int)xhair_pad->value;
+
+		if ( xhair_dot->value )
+			DrawCrosshairPadding( pad, x0, y0, x1, y1 );
+
+		if ( !xhair_t->value )
+			DrawCrosshairPadding( pad, x0, outer.top, x1, inner.top );
+
+		DrawCrosshairPadding( pad, x0, inner.bottom, x1, outer.bottom );
+		DrawCrosshairPadding( pad, outer.left, y0, inner.left, y1 );
+		DrawCrosshairPadding( pad, inner.right, y0, outer.right, y1 );
+	}
+
+	pglColor4f( 1, 1, 1, 1 );
+	pglBlendFunc( GL_SRC_ALPHA, GL_ONE );
+	pglDisable( GL_BLEND );
+	pglEnable( GL_TEXTURE_2D );
+}
+
 void CL_DrawHUD( int state )
 {
 	if( state == CL_ACTIVE && !cl.video_prepped )
@@ -1025,6 +1404,8 @@ void CL_DrawHUD( int state )
 
 	if( state == CL_ACTIVE && cl.refdef.paused )
 		state = CL_PAUSED;
+
+	DrawCrosshair31( );
 
 	switch( state )
 	{
