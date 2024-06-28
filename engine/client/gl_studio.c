@@ -3705,7 +3705,7 @@ void R_DrawStudioModelInternal( cl_entity_t *e, qboolean follow_entity )
 	
 	                ent->curstate.rendermode    = cl_glow_player_rendermode->value;
 	                ent->curstate.renderamt     = cl_glow_player_renderamt->value;
-	                ent->curstate.renderfx      = kRenderFxGlowShell;
+	                ent->curstate.renderfx      = kRenderTransColor;
 	                ent->curstate.rendercolor.r = cl_glow_player_red->value;
 	                ent->curstate.rendercolor.g = cl_glow_player_green->value;
 	
