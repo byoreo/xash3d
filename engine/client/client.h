@@ -1105,6 +1105,7 @@ extern convar_t *xhair_gap;
 extern convar_t *xhair_pad;
 extern convar_t *xhair_size;
 extern convar_t *xhair_t;
+extern convar_t *cl_seebehindwall;
 extern convar_t *xhair_thick;
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 #define MIN( a, b ) ( ( ( a ) < ( b ) ) ? ( a ) : ( b ) )
