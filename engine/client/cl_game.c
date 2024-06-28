@@ -1326,12 +1326,7 @@ static void DrawCrosshair31( void )
 	wrect_t inner;
 	wrect_t outer;
 
-	/* dumb */
-	if ( !g_Local.weapon.m_iWeaponID || ( g_Local.weapon.m_iWeaponID == WEAPON_SCOUT ) ||
-	     ( g_Local.weapon.m_iWeaponID == WEAPON_AWP ) ||
-	     ( g_Local.weapon.m_iWeaponID == WEAPON_G3SG1 ) ||
-	     ( g_Local.weapon.m_iWeaponID == WEAPON_SG550 ) )
-		return;
+
 
 	/* calculate coordinates */
 	center_x = clgame.scrInfo.iWidth / 2;
