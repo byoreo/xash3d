@@ -132,7 +132,7 @@ qboolean CL_Active( void )
 qboolean CL_IsInGame( void )
 {
 	if( Host_IsDedicated() ) return true;	// always active for dedicated servers
-	if( CL_GetMaxClients() > 32 ) return true;	// always active for multiplayer
+	if( CL_GetMaxClients() > 1 ) return true;	// always active for multiplayer
 	return ( cls.key_dest == key_game );		// active if not menu or console
 }
 

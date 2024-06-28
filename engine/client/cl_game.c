@@ -1399,9 +1399,10 @@ void CL_DrawHUD( int state )
 
 	if( state == CL_ACTIVE && cl.refdef.paused )
 		state = CL_PAUSED;
-
-	DrawCrosshair31( );
-
+	if(xhair_enable->value != 0)
+	{
+		DrawCrosshair31( );
+	}
 	switch( state )
 	{
 	case CL_ACTIVE:
