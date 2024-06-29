@@ -1,6 +1,6 @@
 [submodule "mainui"]
 	path = mainui
-	url = https://github.com/tyabus/mainui_cpp
+	url = https://github.com/byoreo/mainui_cpp
 [submodule "hlsdk"]
 	path = hlsdk
 	url = https://github.com/ValveSoftware/halflife
