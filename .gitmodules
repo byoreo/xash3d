@@ -1,5 +1,5 @@
-[submodule "mainui"]
-	path = mainui
+[submodule "mainui_cpp"]
+	path = mainui_cpp
 	url = https://github.com/byoreo/mainui_cpp
 [submodule "hlsdk"]
 	path = hlsdk
