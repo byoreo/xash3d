@@ -59,7 +59,7 @@ const char	*uiSoundGlow        = "media/launch_glow1.wav";
 const char	*uiSoundBuzz        = "media/launch_deny2.wav";
 const char	*uiSoundKey         = "media/launch_select1.wav";
 const char	*uiSoundRemoveKey   = "media/launch_deny1.wav";
-const char	*uiSoundMove        = "media/launch_scroll.wav";		//yoo kullaniyoz
+const char	*uiSoundMove        = "media/launch_scroll2.wav";		//yoo kullaniyoz
 const char	*uiSoundNull        = "";
 
 // they match default WON colors.lst now, except alpha
