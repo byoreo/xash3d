@@ -1,0 +1,37 @@
+name: Update Submodule
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Her saat başı çalışacak şekilde ayarlanmıştır. Zamanlama ifadesini ihtiyacınıza göre ayarlayabilirsiniz.
+  workflow_dispatch: # Manuel tetiklemeye izin verir
+
+jobs:
+  update-submodule:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        submodules: recursive
+
+    - name: Update submodule
+      run: |
+        git submodule update --remote --merge
+        git add .
+        git commit -m "Updated submodule"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Configure Git
+      run: |
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions@github.com'
+
+    - name: Push changes
+      run: |
+        git push origin HEAD:main
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
