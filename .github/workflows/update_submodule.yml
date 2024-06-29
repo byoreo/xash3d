@@ -24,6 +24,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Configure Git
+      run: |
+        git config --global user.name 'iquit'
+        git config --global user.email 'xect@hotmail.com'
 
     - name: Push changes
       run: |
