@@ -108,6 +108,8 @@ convar_t *xhair_t;
 convar_t *xhair_thick;
 convar_t	*hud_utf8;
 convar_t    *ui_renderworld;
+convar_t 	*cl_noflash;
+
 //
 // userinfo
 //
@@ -2273,6 +2275,7 @@ void CL_InitLocal( void )
 	cl_glow_worldmodel_renderamt = Cvar_Get( "cl_glow_worldmodel_renderamt", "51", 0, "AMMMMMMINAKE");
 	cl_glow_worldmodel_height       = Cvar_Get( "cl_glow_worldmodel_height", "30", 1, "OOOOOOF" );
 	cl_glow_worldmodel_spin = Cvar_Get("cl_glow_worldmodel_spin","45",1,"worldmodel spin abi test123");
+	cl_noflash = Cvar_Get( "cl_noflash", "0", 1, "CL_ScreenFade" );
 
 	viewmodel_lag_style = Cvar_Get( "viewmodel_lag_style", "1", 1, "idk" );
 	viewmodel_lag_scale = Cvar_Get( "viewmodel_lag_scale", "1", 1, "idk" );
