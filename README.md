@@ -64,11 +64,7 @@ cl_glow_worldmodel_blue
 cl_glow_worldmodel_renderamt
 cl_glow_worldmodel_height
 cl_glow_worldmodel_spin
-
-
-
-
-
-
-
 ```
+
+### [For Android]
+[Click](https://github.com/byoreo/xash3d-android-project)
